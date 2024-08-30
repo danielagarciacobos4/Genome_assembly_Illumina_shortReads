@@ -25,7 +25,7 @@ First I will do a quality check of the raw reads I obtained from AZENTA and Arli
 #SBATCH --output=slurm-%j-%x.out
 
 conda init bash
-conda activate fastqc
+conda activate qc
 
 fastqc /home/dgarcia/mendel-nas1/short_reads/genomes/DG1_R1_001.fastq.gz \
 /home/dgarcia/mendel-nas1/short_reads/genomes/DG1_R2_001.fastq.gz \
@@ -59,4 +59,53 @@ Explanation
 Explanation
 
 <img width="1048" alt="Screenshot 2024-08-29 at 12 37 52 PM" src="https://github.com/user-attachments/assets/120574f3-8dbb-4524-bdac-62c5e1915321">
+
+# Trimmomatic 
+
+Trimmomatic performs various useful trimming tasks for Illumina paired-end and single-ended data.
+
+```
+#!/bin/bash
+#SBATCH --job-name trimmomatic
+#SBATCH --nodes=1
+#SBATCH --mem=40gb
+#SBATCH --tasks-per-node=5 # Number of cores per node
+#SBATCH --time=40:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=dgarcia@amnh.org
+#SBATCH --output=slurm-%j-%x.out
+
+conda init bash
+conda activate qc
+
+# Set input and output directories
+input_dir="/home/dgarcia/mendel-nas1/short_reads/genomes"
+output_dir="/home/dgarcia/mendel-nas1/short_reads/trimmed_sequences"
+
+# Loop through all forward sequence files in the input directory
+for forward_file in "$input_dir"/*_R1_*.fastq.gz; do
+    # Identify the corresponding reverse file
+    reverse_file="${forward_file/_R1_/_R2_}"
+
+    # Generate base name for output files
+    base_name=$(basename "$forward_file" _R1_*.fastq.gz)
+
+    # Define output files
+    output_forward_paired="$output_dir/${base_name}_R1_paired.fastq.gz"
+    output_forward_unpaired="$output_dir/${base_name}_R1_unpaired.fastq.gz"
+    output_reverse_paired="$output_dir/${base_name}_R2_paired.fastq.gz"
+    output_reverse_unpaired="$output_dir/${base_name}_R2_unpaired.fastq.gz"
+
+    # Run Trimmomatic
+    trimmomatic PE -threads 5 "$forward_file" "$reverse_file" \
+        "$output_forward_paired" "$output_forward_unpaired" \
+        "$output_reverse_paired" "$output_reverse_unpaired" \
+        ILLUMINACLIP:/home/dgarcia/mendel-nas1/short_reads/trim/TruSeq3-PE-2.fa:2:30:10:8 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:40
+
+    echo "Finished processing $base_name"
+done
+
+echo "All files have been processed."
+
+```
 
