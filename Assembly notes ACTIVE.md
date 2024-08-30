@@ -50,7 +50,7 @@ Encoded in these is the flowcell tile from which each read came. This graph allo
 
 ### Per base sequence content
 
-Explanation
+Plots the percentage of each of the four nucleotides (T, C, A, G) at each position across all reads in the input sequence file.
 
 <img width="901" alt="Screenshot 2024-08-29 at 12 33 45 PM" src="https://github.com/user-attachments/assets/dea864a4-07a6-47b6-add9-2b68b979ccbf">
 
