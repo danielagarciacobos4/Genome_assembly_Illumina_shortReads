@@ -56,7 +56,7 @@ Plots the percentage of each of the four nucleotides (T, C, A, G) at each positi
 
 ### Overrepresented sequences and Adapter Content
 
-Explanation
+Shows the very over-represented sequences. This can mean that it is a highly biologically significant sequence, or indicates that the library is contaminated, or not as diverse as expected.
 
 <img width="1048" alt="Screenshot 2024-08-29 at 12 37 52 PM" src="https://github.com/user-attachments/assets/120574f3-8dbb-4524-bdac-62c5e1915321">
 
