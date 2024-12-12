@@ -109,3 +109,17 @@ echo "All files have been processed."
 
 ```
 
+
+# Dylans consideration for short read assembly: 
+
+- Trim
+- Call saps
+- Filter for low quality calls
+- Take the reference and add the variance into the reference
+- We do this three times:
+- 2 GPU : will take around 16 hours in kubernetes 
+- with the final gif you have to make an all sites vcd to have a consensus sequence.  
+- depth filter! Need to be around 100?
+- maybe do not use CACTUS if we are aligning only with one reference genome. 
+
+
