@@ -154,6 +154,36 @@ done
 echo "All files have been processed."
 ```
 
+# FastQC on clean genomes
+
+```
+#!/bin/bash
+#SBATCH --job-name fastqc_cleaned
+#SBATCH --nodes=1
+#SBATCH --mem=40gb
+#SBATCH --tasks-per-node=5
+#SBATCH --time=40:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=dgarcia@amnh.org
+#SBATCH --output=slurm-%j-%x.out
+
+# Activate conda environment
+source ~/.bash_profile
+conda activate fastqc_env
+
+# Define directories
+INPUT_DIR="/home/dgarcia/mendel-nas1/short_reads/clean_genomes"
+OUTPUT_DIR="/home/dgarcia/mendel-nas1/short_reads/fastqc/results/fastqc_2025may6"
+
+# Make sure output directory exists
+mkdir -p "$OUTPUT_DIR"
+
+# Loop through all R1 and R2 cleaned FASTQ files
+for file in "$INPUT_DIR"/*_clean.fastq.gz; do
+    fastqc "$file" -o "$OUTPUT_DIR"
+done
+```
+
 
 
 # Dylans consideration for short read assembly: 
