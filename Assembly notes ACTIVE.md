@@ -100,7 +100,7 @@ for forward_file in "$input_dir"/*_R1_*.fastq.gz; do
     trimmomatic PE -threads 5 "$forward_file" "$reverse_file" \
         "$output_forward_paired" "$output_forward_unpaired" \
         "$output_reverse_paired" "$output_reverse_unpaired" \
-        ILLUMINACLIP:/home/dgarcia/mendel-nas1/short_reads/trim/TruSeq3-PE-2.fa:2:30:10:8 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:40
+        ILLUMINACLIP:/home/dgarcia/mendel-nas1/short_reads/trim/TruSeq3-PE-2.fa:2:30:10:8 LEADING:3 TRAILING:10 SLIDINGWINDOW:4:15 MINLEN:40
 
     echo "Finished processing $base_name"
 done
@@ -108,6 +108,52 @@ done
 echo "All files have been processed."
 
 ```
+
+# Remove contaminants
+
+```
+#!/bin/bash
+#SBATCH --job-name rm_contaminants
+#SBATCH --nodes=1
+#SBATCH --mem=40gb
+#SBATCH --tasks-per-node=5 # Number of cores per node
+#SBATCH --time=40:00:00
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=dgarcia@amnh.org
+#SBATCH --output=slurm-%j-%x.out
+
+module load Java/jdk-1.8.0_281
+input_dir="/home/dgarcia/mendel-nas1/short_reads/trimmed_sequences/paired"
+output_dir="/home/dgarcia/mendel-nas1/short_reads/clean_genomes"
+CREF="/home/dgarcia/mendel-nas1/short_reads/contam/merged_ref_3032904399224293960.fa.gz"
+
+# Loop through all forward sequence files in the input directory
+for forward_file in $input_dir/*_R1_paired.fastq.gz; do
+ # Identify the corresponding reverse file
+    reverse_file="${forward_file/_R1_paired.fastq.gz/_R2_paired.fastq.gz}"
+
+    # Generate base name for output files  
+    filename=$(basename "$forward_file")
+    base_name=${filename%_R1.fastq.gz}
+
+    # Define output files
+    output_forward_clean="$output_dir/${base_name}_R1_clean.fastq.gz"
+    output_reverse_clean="$output_dir/${base_name}_R2_clean.fastq.gz"
+
+    # Run bbsplit .sh to remove contaminants
+    /home/dgarcia/mendel-nas1/short_reads/contam/bbmap/bbsplit.sh -Xmx85g \
+    in1="$forward_file" \
+    in2="$reverse_file" \
+    ref="$CREF" minid=0.95 \
+    outu1="$output_forward_clean" \
+    outu2="$output_reverse_clean"
+
+    echo "Finished processing $base_name"
+done
+
+echo "All files have been processed."
+```
+
 
 
 # Dylans consideration for short read assembly: 
